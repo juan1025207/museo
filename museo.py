@@ -18,3 +18,33 @@ logging.basicConfig(
     ],
 )
 log = logging.getLogger("Museo")  #crear logger
+
+#cvalores fijos
+class EstadoObra(Enum):
+    EXPUESTA     = "EXPUESTA"
+    RESTAURACION = "RESTAURACION"
+    CEDIDA       = "CEDIDA"
+ 
+ 
+class TipoRestauracion(Enum):
+    PREVENTIVA = "PREVENTIVA"
+    EMERGENCIA = "EMERGENCIA"
+ 
+ 
+class Periodo(Enum):
+    PREHISTORIA   = "Prehistoria"
+    ANTIGUA       = "Antigua"
+    MEDIEVAL      = "Medieval"
+    RENACIMIENTO  = "Renacimiento"
+    BARROCO       = "Barroco"
+    MODERNO       = "Moderno"
+    CONTEMPORANEO = "Contemporaneo"
+ 
+ 
+class Estilo(Enum):
+    REALISMO      = "Realismo"
+    IMPRESIONISMO = "Impresionismo"
+    ABSTRACTO     = "Abstracto"
+    CLASICO       = "Clasico"
+    BARROCO       = "Barroco"
+    GOTICO        = "Gotico"
