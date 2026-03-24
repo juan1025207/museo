@@ -203,3 +203,158 @@ class MuseoColaborador:
 
     def mostrar(self):
         print(f"  {self.nombre} | Ciudad: {self.ciudad} | Contacto: {self.contacto}")  # mostrar info
+
+
+class Catalogo:
+    def __init__(self):
+        self.obras = {}  # obras por id
+        log.info("Catalogo iniciado")
+
+    def agregar_obra(self, obra, encargado):
+        if not encargado.verificar_acceso():
+            return False
+        self.obras[obra.id] = obra  # agrega obra
+        log.info("Obra agregada | %s por %s", obra.titulo, encargado.nombre)
+        return True
+
+    def buscar_por_sala(self, sala):
+        return [o for o in self.obras.values() if o.sala == sala]  # filtra por sala
+
+    def buscar_por_autor(self, autor):
+        return [o for o in self.obras.values()
+                if autor.lower() in o.autor.lower()]  # filtra por autor
+
+    def listar_todas(self):
+        print("\n=== CATALOGO COMPLETO ===")
+        for obra in self.obras.values():
+            obra.mostrar()  # muestra obra
+            print()
+
+    def listar_por_sala(self, sala):
+        print(f"\n=== SALA {sala} ===")
+        obras = self.buscar_por_sala(sala)
+        if not obras:
+            print("  No hay obras en esta sala.")
+            return
+        for obra in obras:
+            obra.mostrar()  # muestra por sala
+
+    def valor_total(self, director):
+        if not director.verificar_acceso():
+            return 0
+        total = sum(o.valor for o in self.obras.values())  # suma valores
+        log.info("Valor total consultado por %s: $%.2f", director.nombre, total)
+        return total
+
+    def obras_para_restaurar(self):
+        return [o for o in self.obras.values()
+                if o.necesita_restauracion() and o.estado == EstadoObra.EXPUESTA]  # filtra obras
+
+
+class GestorRestauraciones:
+    def __init__(self, catalogo):
+        self.catalogo = catalogo  # referencia al catálogo
+        self.restauraciones = []  # lista de restauraciones
+
+    def iniciar_restauracion(self, obra_id, tipo, restaurador, motivo=""):
+        if not restaurador.verificar_acceso():
+            return None
+        obra = self.catalogo.obras.get(obra_id)
+        if not obra:
+            print(f"Obra {obra_id} no encontrada")
+            return None
+        if obra.estado == EstadoObra.RESTAURACION:
+            print(f"La obra '{obra.titulo}' ya esta en restauracion")
+            return None
+        rest = Restauracion(obra, tipo, motivo)  # crea restauración
+        obra.estado = EstadoObra.RESTAURACION  # cambia estado
+        obra.restauraciones.append(rest)  # guarda en obra
+        self.restauraciones.append(rest)  # guarda global
+        return rest
+
+    def finalizar_restauracion(self, rest_id, restaurador):
+        if not restaurador.verificar_acceso():
+            return False
+        rest = next((r for r in self.restauraciones if r.id == rest_id), None)
+        if not rest:
+            print(f"Restauracion {rest_id} no encontrada")
+            return False
+        rest.finalizar()  # finaliza restauración
+        rest.obra.estado = EstadoObra.EXPUESTA  # vuelve a expuesta
+        rest.obra.ultima_restauracion = date.today()  # actualiza fecha
+        return True
+
+    def proceso_diario(self, restaurador):
+        if not restaurador.verificar_acceso():
+            return
+        obras = self.catalogo.obras_para_restaurar()  # obras pendientes
+        print(f"\n=== PROCESO DIARIO: {len(obras)} obras para restaurar ===")
+        for obra in obras:
+            self.iniciar_restauracion(
+                obra.id, TipoRestauracion.PREVENTIVA,
+                restaurador, "Preventiva 5 anos"
+            )
+
+    def historial_obra(self, obra_id, restaurador):
+        if not restaurador.verificar_acceso():
+            return
+        obra = self.catalogo.obras.get(obra_id)
+        if not obra:
+            print("Obra no encontrada")
+            return
+        print(f"\n=== HISTORIAL: {obra.titulo} ===")
+        historico = sorted(obra.restauraciones, key=lambda r: r.fecha_inicio)  # ordena
+        if not historico:
+            print("  Sin restauraciones registradas")
+            return
+        for rest in historico:
+            rest.mostrar()  # muestra historial
+
+
+class GestorCesiones:
+    def __init__(self, catalogo):
+        self.catalogo = catalogo  # referencia catálogo
+        self.museos_colaboradores = {}  # museos
+        self.cesiones = []  # lista de cesiones
+
+    def agregar_museo(self, museo, director):
+        if not director.verificar_acceso():
+            return False
+        self.museos_colaboradores[museo.nombre] = museo  # agrega museo
+        log.info("Museo colaborador agregado: %s", museo.nombre)
+        return True
+
+    def ceder_obra(self, obra_id, nombre_museo, importe,
+                   fecha_inicio, fecha_fin, director):
+        if not director.verificar_acceso():
+            return None
+        obra = self.catalogo.obras.get(obra_id)
+        if not obra:
+            print("Obra no encontrada")
+            return None
+        if obra.estado != EstadoObra.EXPUESTA:
+            print(f"'{obra.titulo}' no disponible. Cesion queda pendiente.")
+        museo = self.museos_colaboradores.get(nombre_museo)
+        if not museo:
+            print(f"Museo '{nombre_museo}' no es colaborador")
+            return None
+        cesion = Cesion(obra, nombre_museo, importe, fecha_inicio, fecha_fin)  # crea cesión
+        obra.estado = EstadoObra.CEDIDA  # cambia estado
+        self.cesiones.append(cesion)  # guarda cesión
+        return cesion
+
+    def listar_museos(self):
+        print("\n=== MUSEOS COLABORADORES ===")
+        for museo in self.museos_colaboradores.values():
+            museo.mostrar()  # muestra museos
+
+    def listar_cesiones(self, director):
+        if not director.verificar_acceso():
+            return
+        print("\n=== CESIONES ACTIVAS ===")
+        activas = [c for c in self.cesiones if c.activa]  # filtra activas
+        if not activas:
+            print("  No hay cesiones activas")
+            return
+        for ces in activas:
+            ces.mostrar()  # muestra cesiones
