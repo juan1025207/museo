@@ -75,3 +75,30 @@ class Usuario:
             print(f"Acceso denegado. {self.nombre} debe iniciar sesion")  # acceso inválido
             return False
         return True  # acceso permitido
+
+class ObraArte:
+    def __init__(self, titulo, autor, periodo, valor, fecha_creacion, sala):
+        self.id = str(uuid.uuid4())[:8]  # id único
+        self.titulo = titulo  # título de la obra
+        self.autor = autor  # autor
+        self.periodo = periodo  # periodo artístico
+        self.valor = valor  # valor económico
+        self.fecha_creacion = fecha_creacion  # fecha de creación
+        self.fecha_entrada = date.today()  # fecha de ingreso al museo
+        self.estado = EstadoObra.EXPUESTA  # estado actual
+        self.sala = sala  # sala asignada
+        self.ultima_restauracion = date.today()  # última restauración
+        self.restauraciones = []  # historial de restauraciones
+        log.info("Obra registrada | id=%s | titulo=%s", self.id, self.titulo)
+
+    def necesita_restauracion(self):
+        cinco_anos = timedelta(days=5 * 365)  # periodo de 5 años
+        return (date.today() - self.ultima_restauracion) >= cinco_anos  # verifica restauración
+
+    def mostrar(self):
+        print(f"  [{self.id}] {self.titulo} | Autor: {self.autor}")  # info básica
+        print(f"         Periodo: {self.periodo.value} | Valor: ${self.valor:,.2f}")
+        print(f"         Estado: {self.estado.value} | Sala: {self.sala}")
+
+    def tipo(self):
+        return "Obra de Arte"  # tipo de objeto
