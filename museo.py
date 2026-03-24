@@ -145,4 +145,61 @@ class OtroObjeto(ObraArte):
 
     def tipo(self):
         return "Otro Objeto"  # tipo de obra
-    
+
+
+class Restauracion:
+    def __init__(self, obra, tipo, motivo=""):
+        self.id = str(uuid.uuid4())[:8]  # id único
+        self.obra = obra  # obra asociada
+        self.tipo = tipo  # tipo de restauración
+        self.motivo = motivo  # motivo
+        self.fecha_inicio = date.today()  # fecha inicio
+        self.fecha_fin = None  # fecha fin
+        self.terminada = False  # estado
+        log.info("Restauracion iniciada | id=%s | obra=%s | tipo=%s",
+                 self.id, obra.titulo, tipo.value)
+
+    def finalizar(self):
+        self.fecha_fin = date.today()  # asigna fecha fin
+        self.terminada = True  # marca como terminada
+        log.info("Restauracion finalizada | id=%s | obra=%s",
+                 self.id, self.obra.titulo)
+
+    def mostrar(self):
+        estado = "Finalizada" if self.terminada else "En proceso"  # estado texto
+        print(f"  [REST-{self.id}] {self.tipo.value} | Inicio: {self.fecha_inicio}")
+        print(f"         Estado: {estado} | Motivo: {self.motivo or 'Preventiva'}")
+        if self.fecha_fin:
+            print(f"         Fin: {self.fecha_fin}")  # muestra fin
+
+
+class Cesion:
+    def __init__(self, obra, museo_destino, importe, fecha_inicio, fecha_fin):
+        self.id = str(uuid.uuid4())[:8]  # id único
+        self.obra = obra  # obra cedida
+        self.museo_destino = museo_destino  # destino
+        self.importe = importe  # valor
+        self.fecha_inicio = fecha_inicio  # inicio
+        self.fecha_fin = fecha_fin  # fin
+        self.activa = True  # estado
+        log.info("Cesion registrada | obra=%s | museo=%s | importe=$%.2f",
+                 obra.titulo, museo_destino, importe)
+
+    def ha_terminado(self):
+        return date.today() >= self.fecha_fin  # verifica fin
+
+    def mostrar(self):
+        estado = "Activa" if self.activa else "Finalizada"  # estado texto
+        print(f"  [CES-{self.id}] Museo: {self.museo_destino}")
+        print(f"         Importe: ${self.importe:,.2f} | Estado: {estado}")
+        print(f"         Periodo: {self.fecha_inicio} al {self.fecha_fin}")
+
+
+class MuseoColaborador:
+    def __init__(self, nombre, ciudad, contacto):
+        self.nombre = nombre  # nombre
+        self.ciudad = ciudad  # ciudad
+        self.contacto = contacto  # contacto
+
+    def mostrar(self):
+        print(f"  {self.nombre} | Ciudad: {self.ciudad} | Contacto: {self.contacto}")  # mostrar info
