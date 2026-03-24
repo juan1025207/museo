@@ -48,3 +48,30 @@ class Estilo(Enum):
     CLASICO       = "Clasico"
     BARROCO       = "Barroco"
     GOTICO        = "Gotico"
+
+
+class Usuario:
+    def __init__(self, nombre, contrasena, rol):
+        self.nombre = nombre  # nombre del usuario
+        self._contrasena = contrasena  # contraseña privada
+        self.rol = rol  # tipo de usuario
+        self.autenticado = False  # estado de sesión
+
+    def iniciar_sesion(self, contrasena):
+        if self._contrasena == contrasena:
+            self.autenticado = True  # marca como autenticado
+            log.info("Usuario %s inicio sesion", self.nombre)  # log inicio
+            return True
+        log.warning("Sesion fallida para %s", self.nombre)  # log error
+        print(f"Contrasena incorrecta para {self.nombre}")
+        return False
+
+    def cerrar_sesion(self):
+        self.autenticado = False  # cierra sesión
+        log.info("Usuario %s cerro sesion", self.nombre)
+
+    def verificar_acceso(self):
+        if not self.autenticado:
+            print(f"Acceso denegado. {self.nombre} debe iniciar sesion")  # acceso inválido
+            return False
+        return True  # acceso permitido
