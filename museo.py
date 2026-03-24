@@ -102,3 +102,47 @@ class ObraArte:
 
     def tipo(self):
         return "Obra de Arte"  # tipo de objeto
+
+class Cuadro(ObraArte):
+    def __init__(self, titulo, autor, periodo, valor,
+                 fecha_creacion, sala, estilo, tecnica):
+        super().__init__(titulo, autor, periodo, valor, fecha_creacion, sala)  # hereda de ObraArte
+        self.estilo = estilo  # estilo del cuadro
+        self.tecnica = tecnica  # técnica usada
+
+    def mostrar(self):
+        super().mostrar()  # muestra info base
+        print(f"         Estilo: {self.estilo.value} | Tecnica: {self.tecnica}")
+
+    def tipo(self):
+        return "Cuadro"  # tipo de obra
+
+
+class Escultura(ObraArte):
+    def __init__(self, titulo, autor, periodo, valor,
+                 fecha_creacion, sala, estilo, material):
+        super().__init__(titulo, autor, periodo, valor, fecha_creacion, sala)  # hereda
+        self.estilo = estilo  # estilo
+        self.material = material  # material
+
+    def mostrar(self):
+        super().mostrar()  # muestra base
+        print(f"         Estilo: {self.estilo.value} | Material: {self.material}")
+
+    def tipo(self):
+        return "Escultura"  # tipo de obra
+
+
+class OtroObjeto(ObraArte):
+    def __init__(self, titulo, autor, periodo, valor,
+                 fecha_creacion, sala, descripcion):
+        super().__init__(titulo, autor, periodo, valor, fecha_creacion, sala)  # hereda
+        self.descripcion = descripcion  # descripción
+
+    def mostrar(self):
+        super().mostrar()  # muestra base
+        print(f"         Descripcion: {self.descripcion}")
+
+    def tipo(self):
+        return "Otro Objeto"  # tipo de obra
+    
